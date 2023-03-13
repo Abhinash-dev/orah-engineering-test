@@ -1,25 +1,33 @@
-import React from "react"
+import React, { useContext } from "react"
 import styled from "styled-components"
 import { Spacing, BorderRadius, FontWeight } from "shared/styles/styles"
 import { Images } from "assets/images"
 import { Colors } from "shared/styles/colors"
 import { Person, PersonHelper } from "shared/models/person"
 import { RollStateSwitcher } from "staff-app/components/roll-state/roll-state-switcher.component"
+import { RolllStateType } from "shared/models/roll"
+import { RollContext } from "staff-app/providers/Reducer"
 
 interface Props {
-  isRollMode?: boolean
-  student: Person
+  student: any
+  readOnly?: boolean
 }
-export const StudentListTile: React.FC<Props> = ({ isRollMode, student }) => {
+export const StudentListTile: React.FC<Props> = ({ student, readOnly = false }) => {
+  const { state, dispatch } = useContext(RollContext)
+
+  const mark = (rollState: RolllStateType) => {
+    dispatch({ type: "mark", payload: { id: student.id, rollState } })
+  }
+
   return (
     <S.Container>
       <S.Avatar url={Images.avatar}></S.Avatar>
       <S.Content>
         <div>{PersonHelper.getFullName(student)}</div>
       </S.Content>
-      {isRollMode && (
+      {(state.isRollMode || readOnly) && (
         <S.Roll>
-          <RollStateSwitcher />
+          <RollStateSwitcher initialState={student.rollState} readOnly={readOnly} onStateChange={mark} />
         </S.Roll>
       )}
     </S.Container>
